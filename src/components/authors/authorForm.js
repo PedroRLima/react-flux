@@ -10,9 +10,9 @@ var AuthorForm = React.createClass({
 			<form>
 				<h1>Manage Author</h1>
 				<Input
-					name="fistName"
+					name="firstName"
 					label="First Name"
-					value={this.props.author.fistName}
+					value={this.props.author.firstName}
 					onChange={this.props.onChange} />
 
 				<Input
@@ -21,7 +21,7 @@ var AuthorForm = React.createClass({
 					value={this.props.author.lastName}
 					onChange={this.props.onChange} />
 
-				<input type="submit" value="Save" className="btn btn-default" />						  
+				<input type="submit" value="Save" className="btn btn-default" onClick={this.props.onSave} />						  
 			</form>
 
 		);

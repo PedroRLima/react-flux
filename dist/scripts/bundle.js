@@ -48569,9 +48569,9 @@ var AuthorForm = React.createClass({displayName: "AuthorForm",
 			React.createElement("form", null, 
 				React.createElement("h1", null, "Manage Author"), 
 				React.createElement(Input, {
-					name: "fistName", 
+					name: "firstName", 
 					label: "First Name", 
-					value: this.props.author.fistName, 
+					value: this.props.author.firstName, 
 					onChange: this.props.onChange}), 
 
 				React.createElement(Input, {
@@ -48580,7 +48580,7 @@ var AuthorForm = React.createClass({displayName: "AuthorForm",
 					value: this.props.author.lastName, 
 					onChange: this.props.onChange}), 
 
-				React.createElement("input", {type: "submit", value: "Save", className: "btn btn-default"})						  
+				React.createElement("input", {type: "submit", value: "Save", className: "btn btn-default", onClick: this.props.onSave})						  
 			)
 
 		);
@@ -48665,6 +48665,7 @@ module.exports = AuthorPage;
 
 var React = require("react");
 var AuthorForm = require("./authorForm");
+var AuthorApi = require("../../api/authorApi");
 
 var manageAuthorPage = React.createClass({displayName: "manageAuthorPage",
 	getInitialState: function() {
@@ -48682,12 +48683,19 @@ var manageAuthorPage = React.createClass({displayName: "manageAuthorPage",
 
 	},
 
+	saveAuthor: function(event) {
+		event.preventDefault();
+		AuthorApi.saveAuthor(this.state.author);
+
+	},
+
 	render: function() {
 		return (
 
 			React.createElement(AuthorForm, {
 			author: this.state.author, 
-			onChange: this.setAuthorState})
+			onChange: this.setAuthorState, 
+			onSave: this.saveAuthor})
 
 		);
 	}
@@ -48695,7 +48703,7 @@ var manageAuthorPage = React.createClass({displayName: "manageAuthorPage",
 
 module.exports = manageAuthorPage;
 
-},{"./authorForm":203,"react":197}],207:[function(require,module,exports){
+},{"../../api/authorApi":198,"./authorForm":203,"react":197}],207:[function(require,module,exports){
 "use strict";
 
 var React = require("react");
