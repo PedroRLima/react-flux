@@ -48939,6 +48939,12 @@ var React = require("react");
 var Input = require("../common/textInput");
 
 var AuthorForm = React.createClass({displayName: "AuthorForm",
+	propTypes: {
+		author: React.PropTypes.object.isRequired,
+		onSave: React.PropTypes.func.isRequired,
+		onChange: React.PropTypes.func.isRequired,
+		errors: React.PropTypes.object
+	},
 	render: function() {
 		return (
 
@@ -48948,13 +48954,15 @@ var AuthorForm = React.createClass({displayName: "AuthorForm",
 					name: "firstName", 
 					label: "First Name", 
 					value: this.props.author.firstName, 
-					onChange: this.props.onChange}), 
+					onChange: this.props.onChange, 
+					error: this.props.errors.firstName}), 
 
 				React.createElement(Input, {
 					name: "lastName", 
 					label: "Last Name", 
 					value: this.props.author.lastName, 
-					onChange: this.props.onChange}), 
+					onChange: this.props.onChange, 
+					error: this.props.errors.lastName}), 
 
 				React.createElement("input", {type: "submit", value: "Save", className: "btn btn-default", onClick: this.props.onSave})						  
 			)
@@ -49050,14 +49058,25 @@ var manageAuthorPage = React.createClass({displayName: "manageAuthorPage",
 		Router.Navigation 
 	],
 
+	statics:{
+		willTransitionFrom: function(transition, component){
+			if(component.state.dirty && !confirm("Leave without saving?")){
+				transition.abort();
+			}
+		}
+	},
+
 	getInitialState: function() {
 		return {
-			author: {id: "", firstName: "", lastName: ""}
+			author: {id: "", firstName: "", lastName: ""},
+			errors: {},
+			dirty: false
 		};
 	},
 
 	setAuthorState: function(event) {
 
+		this.setState({dirty: true});
 		var field = event.target.name;
 		var value = event.target.value;
 		this.state.author[field] = value;
@@ -49065,9 +49084,33 @@ var manageAuthorPage = React.createClass({displayName: "manageAuthorPage",
 
 	},
 
+	authorFormIsValid: function(){
+		var formIsValid = true;
+		this.state.errors = {};
+
+		if(this.state.author.firstName.length < 3){
+			this.state.errors.firstName = "First name must have at least 3 characters";
+			formIsValid = false;
+		}
+
+		if(this.state.author.lastName.length < 3){
+			this.state.errors.lastName = "Last name must have at least 3 characters";
+			formIsValid = false;
+		}
+
+		this.setState({errors:this.state.errors});
+		return formIsValid;
+	},
+
 	saveAuthor: function(event) {
 		event.preventDefault();
+
+		if(!this.authorFormIsValid()){
+			return;
+		}
+
 		AuthorApi.saveAuthor(this.state.author);
+		this.setState({dirty: false});
 		toastr.success("Author saved !");
 		this.transitionTo("authors");
 
@@ -49079,7 +49122,8 @@ var manageAuthorPage = React.createClass({displayName: "manageAuthorPage",
 			React.createElement(AuthorForm, {
 			author: this.state.author, 
 			onChange: this.setAuthorState, 
-			onSave: this.saveAuthor})
+			onSave: this.saveAuthor, 
+			errors: this.state.errors})
 
 		);
 	}

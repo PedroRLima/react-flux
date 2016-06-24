@@ -11,14 +11,25 @@ var manageAuthorPage = React.createClass({
 		Router.Navigation 
 	],
 
+	statics:{
+		willTransitionFrom: function(transition, component){
+			if(component.state.dirty && !confirm("Leave without saving?")){
+				transition.abort();
+			}
+		}
+	},
+
 	getInitialState: function() {
 		return {
-			author: {id: "", firstName: "", lastName: ""}
+			author: {id: "", firstName: "", lastName: ""},
+			errors: {},
+			dirty: false
 		};
 	},
 
 	setAuthorState: function(event) {
 
+		this.setState({dirty: true});
 		var field = event.target.name;
 		var value = event.target.value;
 		this.state.author[field] = value;
@@ -26,9 +37,33 @@ var manageAuthorPage = React.createClass({
 
 	},
 
+	authorFormIsValid: function(){
+		var formIsValid = true;
+		this.state.errors = {};
+
+		if(this.state.author.firstName.length < 3){
+			this.state.errors.firstName = "First name must have at least 3 characters";
+			formIsValid = false;
+		}
+
+		if(this.state.author.lastName.length < 3){
+			this.state.errors.lastName = "Last name must have at least 3 characters";
+			formIsValid = false;
+		}
+
+		this.setState({errors:this.state.errors});
+		return formIsValid;
+	},
+
 	saveAuthor: function(event) {
 		event.preventDefault();
+
+		if(!this.authorFormIsValid()){
+			return;
+		}
+
 		AuthorApi.saveAuthor(this.state.author);
+		this.setState({dirty: false});
 		toastr.success("Author saved !");
 		this.transitionTo("authors");
 
@@ -40,7 +75,8 @@ var manageAuthorPage = React.createClass({
 			<AuthorForm 
 			author={this.state.author}
 			onChange={this.setAuthorState}
-			onSave={this.saveAuthor} />
+			onSave={this.saveAuthor}
+			errors={this.state.errors} />
 
 		);
 	}
