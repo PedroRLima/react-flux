@@ -48826,8 +48826,8 @@ module.exports = {
 	authors: 
 	[
 		{
-			id: 'cory-house', 
-			firstName: 'Cory', 
+			id: 'pedro-house', 
+			firstName: 'Pedro', 
 			lastName: 'House'
 		},	
 		{
@@ -48977,6 +48977,8 @@ module.exports = AuthorForm;
 "use strict";
 
 var React = require("react");
+var Link = require("react-router").Link;
+
 var AuthorList = React.createClass({displayName: "AuthorList",
 	propTypes: {
 		authors: React.PropTypes.array.isRequired
@@ -48986,7 +48988,7 @@ var AuthorList = React.createClass({displayName: "AuthorList",
 		var createAuthorRow = function(author){
 			return (
 				React.createElement("tr", {key: author.id}, 
-					React.createElement("td", null, " ", React.createElement("a", {href: "/#authors/" + author.id}, author.id)), 
+					React.createElement("td", null, React.createElement(Link, {to: "manageAuthor", params: {id: author.id}}, author.id)), 
 					React.createElement("td", null, author.firstName, " ", author.lastName)
 				)
 			);
@@ -49010,7 +49012,7 @@ var AuthorList = React.createClass({displayName: "AuthorList",
 
 module.exports = AuthorList;
 
-},{"react":197}],206:[function(require,module,exports){
+},{"react":197,"react-router":28}],206:[function(require,module,exports){
 "use strict";
 
 var React = require("react");
@@ -49058,7 +49060,7 @@ var manageAuthorPage = React.createClass({displayName: "manageAuthorPage",
 		Router.Navigation 
 	],
 
-	statics:{
+	statics: {
 		willTransitionFrom: function(transition, component){
 			if(component.state.dirty && !confirm("Leave without saving?")){
 				transition.abort();
@@ -49072,6 +49074,14 @@ var manageAuthorPage = React.createClass({displayName: "manageAuthorPage",
 			errors: {},
 			dirty: false
 		};
+	},
+
+	componentWillMount: function(){
+		var authorId = this.props.params.id; //from path /author:id
+
+		if(authorId){
+			this.setState({author: AuthorApi.getAuthorById(authorId)});
+		}
 	},
 
 	setAuthorState: function(event) {
@@ -49098,7 +49108,7 @@ var manageAuthorPage = React.createClass({displayName: "manageAuthorPage",
 			formIsValid = false;
 		}
 
-		this.setState({errors:this.state.errors});
+		this.setState({errors: this.state.errors});
 		return formIsValid;
 	},
 
@@ -49249,6 +49259,7 @@ var routes = (
     React.createElement(DefaultRoute, {handler: require('./components/homePage')}), 
     React.createElement(Route, {name: "authors", handler: require('./components/authors/authorPage')}), 
     React.createElement(Route, {name: "addAuthor", path: "author", handler: require("./components/authors/manageAuthorPage")}), 
+    React.createElement(Route, {name: "manageAuthor", path: "author/:id", handler: require("./components/authors/manageAuthorPage")}), 
     React.createElement(Route, {name: "about", handler: require('./components/about/aboutPage')}), 
     React.createElement(NotFoundRoute, {handler: require("./components/404Page")}), 
     React.createElement(Redirect, {from: "about-us", to: "about"}), 
